@@ -166,3 +166,61 @@ router.beforeEach((to,from,next) => {
 })
 ```
 这样就可以了，渲染成功
+## 7，在vue中实现拖拽并动态添加组件
+类似麦客表单的拖拽表单功能该如何在vue中实现 <br>
+会用到dragstart事件 drop事件 dragover事件
+```
+data() {
+  return {
+    tag: '',
+    items: []
+  }
+},
+methods: {
+  dragstart(e) {
+    let tag = e.target.getAttribute('tag');
+    // console.log(tag);
+    e.dataTransfer.setData('tag', tag);
+  },
+  drop(e) {
+    let tag = e.dataTransfer.getData('tag');
+    this.tag = tag;
+    if( e.target == document.querySelector('.right') ) { //这段是为了加入两列组件会同时放置两个拖拽的插件，所以判断当前的目标是容器最外围，还是内部两列容器
+      this.items.push({
+       component: tag
+      })
+    }
+  }
+}
+```
+```
+template模板
+<template>
+  <div class="draggle">
+    <!-- <checkbox></checkbox>
+    <checkbox></checkbox> -->
+    <div class="left">
+      <div class="widget_item" @dragstart="dragstart" draggable="true" tag="checkbox">
+        <span class="title">单选框</span>
+      </div>
+      <div class="widget_item" @dragstart="dragstart" draggable="true" tag="inputtext">
+        <span class="title">文本输入框</span>
+      </div>
+      <div class="widget_item" @dragstart="dragstart" draggable="true" tag="twocloumn">
+        <span class="title">两列</span>
+      </div>
+    </div>
+    <div class="right" @drop="drop">
+        <!-- 放置元素的容器 -->
+        <component :is="item.component" :text="item.text" v-for="(item, index) in items" :key="index"></component>
+    </div>
+    <div class="right_right">
+      
+    </div>
+  </div>
+</template>
+```
+关于动态添加组件，在vue2.0后有一个保留组件component，
+```
+<component :is="item.component" :text="item.text" v-for="(item, index) in items" :key="index"></component>
+```
